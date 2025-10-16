@@ -1,0 +1,64 @@
+{
+  "name": "@hvu/my-package",
+  "version": "0.0.0",
+  "description": "Node module template - supporting TypeScript, ESM, CJS, and GitHub Actions",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "update-deps": "npx npm-check-updates -u && npm i",
+    "build": "npm run lint && npm run format && tsdown",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:case": "c8 node --import tsx --test-reporter tap --test ",
+    "test:watch": "c8 node --import tsx --test-reporter tap --test --watch tests/*.test.ts tests/**/*.test.ts",
+    "test": "npm run test:case tests/*.test.* tests/**/*.test.*",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "prerelease-patch": "dev-bin/prerelease-patch.sh",
+    "prerelease-minor": "dev-bin/prerelease-minor.sh",
+    "prerelease-major": "dev-bin/prerelease-major.sh",
+    "release": "npm version patch",
+    "git-push": "git push --follow-tags"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/node": "^24.7.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/parser": "^8.46.1",
+    "c8": "^10.1.3",
+    "esbuild": "^0.25.11",
+    "eslint": "^9.37.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.4.0",
+    "prettier": "^3.6.2",
+    "tsdown": "^0.15.7",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1"
+  },
+  "keywords": [
+    "node",
+    "template",
+    "module"
+  ],
+  "author": "Hien Vu",
+  "license": "MIT"
+}

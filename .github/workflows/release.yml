@@ -1,0 +1,43 @@
+on:
+  pull_request:
+    types: [closed]
+    branches: ['master']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required for pushing tags
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set node LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install
+        run: npm ci
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+
+      - name: Build official release version
+        run: npm run release
+
+      - name: Tag & push changes
+        run: npm run git-push
+
+      - name: Rebuild source branch from master
+        run: |
+          git push origin --delete ${{ github.event.pull_request.head.ref }}
+          git checkout master
+          git pull
+          git checkout -b ${{ github.event.pull_request.head.ref }}
+          git push origin ${{ github.event.pull_request.head.ref }}
