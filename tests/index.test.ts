@@ -1,29 +1,22 @@
+import logger, { DaLogger } from '../src/index';
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import helloWorld, { cheerio } from '../src/index';
+import { DaLoggerAbstractLogger } from '../src/supported-loggers/logger-interface';
 
-describe('helloWorld', () => {
-  it('should return "Hello World"', () => {
-    const result = helloWorld();
-    assert.strictEqual(result, 'Hello World');
+describe('default exported logger', () => {
+  it('should be an instance of DaLogger Supported Logger', () => {
+    assert.ok(logger() instanceof DaLoggerAbstractLogger);
   });
-
-  it('should return a string', () => {
-    const result = helloWorld();
-    assert.strictEqual(typeof result, 'string');
-  });
-
-  it('should not return null or undefined', () => {
-    const result = helloWorld();
-    assert.ok(result);
-    assert.notStrictEqual(result, null);
-    assert.notStrictEqual(result, undefined);
+  it('should return same logger instance on all logger() calls', () => {
+    assert.strictEqual(logger(), logger());
   });
 });
 
-describe('cheerio', () => {
-  it('should return a string', () => {
-    const result = cheerio();
-    assert.strictEqual(typeof result, 'string');
+describe('exported DaLogger class', () => {
+  it('should support DaLogger.register', () => {
+    assert.ok(DaLogger.register() instanceof DaLoggerAbstractLogger);
+  });
+  it('should support DaLogger.unregister', () => {
+    assert.strictEqual(DaLogger.unregister(), undefined);
   });
 });

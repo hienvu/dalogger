@@ -1,2 +1,2 @@
-import { cheerio, helloWorld } from "./hello.cjs";
-export { cheerio, helloWorld as default, helloWorld };
+import { DaLogger, logger } from "./da-logger.cjs";
+export { DaLogger, logger as default, logger };

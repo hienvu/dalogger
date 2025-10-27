@@ -1,7 +1,7 @@
 {
-  "name": "@hvu/my-package",
+  "name": "@hvu/dalogger",
   "version": "0.0.0",
-  "description": "Node module template - supporting TypeScript, ESM, CJS, and GitHub Actions",
+  "description": "Distributed-first logging. No trail, no tale.",
   "engines": {
     "node": ">=20.19.0"
   },
@@ -55,9 +55,10 @@
     "typescript-eslint": "^8.46.1"
   },
   "keywords": [
-    "node",
-    "template",
-    "module"
+    "logger",
+    "log",
+    "logging",
+    "distributed"
   ],
   "author": "Hien Vu",
   "license": "MIT"

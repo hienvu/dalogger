@@ -1,6 +1,6 @@
 Object.defineProperty(exports, '__esModule', { value: true });
-const require_hello = require('./hello.cjs');
+const require_da_logger = require('./da-logger.cjs');
 
-exports.cheerio = require_hello.cheerio;
-exports.default = require_hello.helloWorld;
-exports.helloWorld = require_hello.helloWorld;
+exports.DaLogger = require_da_logger.DaLogger;
+exports.default = require_da_logger.default;
+exports.logger = require_da_logger.default;

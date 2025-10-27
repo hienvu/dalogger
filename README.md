@@ -1,4 +1,5 @@
-*** TEMPLATE - REMOVE ME ***
+**_ TEMPLATE - REMOVE ME _**
+
 ## Motivation
 
 At best, the ritual of starting a new module is just a chore that turns into the same old boilerplate. I built this so I don't have to think about it - though I still tip my hat to the giants whose work made this possible.
@@ -22,8 +23,9 @@ npm i git+ssh://git@github.com:hienvu/node-module-template-private.git
 #### Usage
 
 TypeScript - test.ts:
+
 ```typescript
-import helloWorld, {cheerio} from '@hvu/my-package';
+import helloWorld, { cheerio } from '@hvu/my-package';
 
 const hello: string = helloWorld();
 const goodbye: string = cheerio();
@@ -32,23 +34,24 @@ console.log(`Say ${hello} ... and wave ${goodbye}`);
 ```
 
 ESM - test.mjs:
+
 ```javascript
-import helloWorld, {cheerio} from '@hvu/my-package';
+import helloWorld, { cheerio } from '@hvu/my-package';
 
 console.log(helloWorld());
 console.log(cheerio());
-
 ```
 
 CommonJS - test.cjs
+
 ```javascript
-const {helloWorld, cheerio} = require('@hvu/my-package');
+const { helloWorld, cheerio } = require('@hvu/my-package');
 
 console.log(helloWorld());
 console.log(cheerio());
 ```
-*** END OF TEMPLATE - REMOVE ME ***
 
+**_ END OF TEMPLATE - REMOVE ME _**
 
 ## Development Overview
 
@@ -57,7 +60,6 @@ console.log(cheerio());
    - `release-minor` for new features
    - `release-major` for breaking changes
 2. Once merged and tested, raise a PR from the `release-` branch to `master` to create an official release.
-
 
 ### Features
 
@@ -97,15 +99,15 @@ feature/my-feature → release-{patch|minor|major} →  master
 #### Version Control Branches
 
 Three branches control versioning:
+
 - `release-patch`: Bug fixes (1.0.0 → 1.0.1)
 - `release-minor`: New features (1.0.0 → 1.1.0)
 - `release-major`: Breaking changes (1.0.0 → 2.0.0)
 
 #### ⚠️ Important: Sequential Releases Only
 
-**Never merge multiple release branches to `master` simultaneously.** Releases must be done sequentially to avoid version conflicts. 
+**Never merge multiple release branches to `master` simultaneously.** Releases must be done sequentially to avoid version conflicts.
 
 ✅ Correct: Merge `release-patch` → wait for completion → merge `release-minor`
-
 
 ❌ Incorrect: Merge `release-patch` and `release-minor` at the same time
