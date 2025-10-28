@@ -27,5 +27,5 @@ DA_LOGGER_PROVIDER=winston node main.mjs
 3. Specific environment config:
 
 ```
-NODE_ENV=winston node main.js
+NODE_ENV=winston node main.mjs
 ```

@@ -31,7 +31,11 @@ export default class WinstonLogger extends DaLoggerAbstractLogger {
       level,
       transports,
       levels: Object.fromEntries(SUPPORTED_LEVELS),
-      format: winston.format.combine(winston.format.errors({ stack: true }), winston.format.json()),
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.errors({ stack: true }),
+        winston.format.json(),
+      ),
       exceptionHandlers: [new winston.transports.Console()],
       exitOnError: false,
       defaultMeta: {

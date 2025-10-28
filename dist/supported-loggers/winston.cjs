@@ -26,7 +26,7 @@ var WinstonLogger = class extends require_logger_interface.DaLoggerAbstractLogge
 			level,
 			transports,
 			levels: Object.fromEntries(require_utils.SUPPORTED_LEVELS),
-			format: winston.default.format.combine(winston.default.format.errors({ stack: true }), winston.default.format.json()),
+			format: winston.default.format.combine(winston.default.format.timestamp(), winston.default.format.errors({ stack: true }), winston.default.format.json()),
 			exceptionHandlers: [new winston.default.transports.Console()],
 			exitOnError: false,
 			defaultMeta: { [traceKeyName]: traceKey }
