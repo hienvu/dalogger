@@ -82,9 +82,10 @@ export class DaLogger {
           transport?: { targets: { target: string; level: string; options: unknown }[] };
         };
       };
-    } = (config.has('daLogger') && config.get('daLogger')) || {
+    } = {
       level: 'debug',
       provider: 'console',
+      ...(config as any).daLogger,
     };
 
     const logProvider = (process.env.DA_LOGGER_PROVIDER || loggerConfig.provider || 'console').toLowerCase();

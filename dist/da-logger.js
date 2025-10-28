@@ -42,9 +42,10 @@ var DaLogger = class DaLogger {
 			const asyncContextId = executionAsyncId().toString();
 			_loadedLoggers.set(asyncContextId, this);
 		}
-		const loggerConfig = config.has("daLogger") && config.get("daLogger") || {
+		const loggerConfig = {
 			level: "debug",
-			provider: "console"
+			provider: "console",
+			...config.daLogger
 		};
 		const logProvider = (process.env.DA_LOGGER_PROVIDER || loggerConfig.provider || "console").toLowerCase();
 		if (logProvider === "winston") {
