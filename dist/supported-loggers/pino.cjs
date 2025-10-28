@@ -10,12 +10,11 @@ var PinoLogger = class extends require_logger_interface.DaLoggerAbstractLogger {
 		super(traceKey, loggerOpts);
 		const traceKeyName = loggerOpts.traceKeyName || "dalogger-trace-key";
 		const level = loggerOpts.level || "debug";
-		const targets = loggerOpts.transport?.targets.map((t) => t) || [];
-		targets.push({
+		const targets = loggerOpts.transport?.targets.map((t) => t) || [{
 			target: "pino/file",
 			level,
 			options: { destination: 1 }
-		});
+		}];
 		this._logger = (0, pino.default)({
 			...loggerOpts,
 			level,

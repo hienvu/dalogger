@@ -82,12 +82,14 @@ export class DaLogger {
           transport?: { targets: { target: string; level: string; options: unknown }[] };
         };
       };
-    } = config.get('daLogger') || {
+    } = (config.has('daLogger') && config.get('daLogger')) || {
       level: 'debug',
       provider: 'console',
     };
 
-    if (loggerConfig.provider === 'winston') {
+    const logProvider = (process.env.DA_LOGGER_PROVIDER || loggerConfig.provider || 'console').toLowerCase();
+
+    if (logProvider === 'winston') {
       this._logger = new WinstonLogger(this._traceKey, {
         level: loggerConfig.level,
         ...loggerConfig.settings?.winston,
@@ -95,7 +97,7 @@ export class DaLogger {
       return this._logger;
     }
 
-    if (loggerConfig.provider === 'pino') {
+    if (logProvider === 'pino') {
       this._logger = new PinoLogger(this._traceKey, { level: loggerConfig.level, ...loggerConfig.settings?.pino });
       return this._logger;
     }

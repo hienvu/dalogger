@@ -15,14 +15,13 @@ export default class PinoLogger extends DaLoggerAbstractLogger {
     const traceKeyName = loggerOpts.traceKeyName || 'dalogger-trace-key';
     const level = loggerOpts.level || 'debug';
     const transport = loggerOpts.transport as { targets: PinoTarget[] };
-    const targets: PinoTarget[] = transport?.targets.map((t) => t) || []; // transport?.targets is readonly
-
-    // Always provide a fallback to console
-    targets.push({
-      target: 'pino/file',
-      level,
-      options: { destination: 1 },
-    });
+    const targets: PinoTarget[] = transport?.targets.map((t) => t) || [
+      {
+        target: 'pino/file',
+        level,
+        options: { destination: 1 },
+      },
+    ]; // transport?.targets is readonly
 
     const args = {
       ...loggerOpts,

@@ -45,18 +45,19 @@ var DaLogger = class DaLogger {
 			const asyncContextId = (0, node_async_hooks.executionAsyncId)().toString();
 			_loadedLoggers.set(asyncContextId, this);
 		}
-		const loggerConfig = config.default.get("daLogger") || {
+		const loggerConfig = config.default.has("daLogger") && config.default.get("daLogger") || {
 			level: "debug",
 			provider: "console"
 		};
-		if (loggerConfig.provider === "winston") {
+		const logProvider = (process.env.DA_LOGGER_PROVIDER || loggerConfig.provider || "console").toLowerCase();
+		if (logProvider === "winston") {
 			this._logger = new require_winston.default(this._traceKey, {
 				level: loggerConfig.level,
 				...loggerConfig.settings?.winston
 			});
 			return this._logger;
 		}
-		if (loggerConfig.provider === "pino") {
+		if (logProvider === "pino") {
 			this._logger = new require_pino.default(this._traceKey, {
 				level: loggerConfig.level,
 				...loggerConfig.settings?.pino
