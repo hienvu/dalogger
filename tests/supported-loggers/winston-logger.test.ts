@@ -1,20 +1,20 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import ConsoleLogger from '../../src/supported-loggers/console';
+import WinstonLogger from '../../src/supported-loggers/winston';
 import { DaLoggerAbstractLogger } from '../../src/supported-loggers/logger-interface';
-import { Console } from 'node:console';
+import winston from 'winston';
 
-describe('ConsoleLogger', () => {
+describe('WinstonLogger', () => {
   it('should be an instance of DaLoggerAbstractLogger', () => {
     const traceKey = crypto.randomUUID();
-    const logger = new ConsoleLogger(traceKey);
+    const logger = new WinstonLogger(traceKey);
     assert.ok(logger instanceof DaLoggerAbstractLogger);
-    assert.ok(logger.provider() instanceof Console);
+    assert.ok(logger.provider() instanceof winston.Logger);
   });
 
   it('should always use the same trace key', () => {
     const traceKey = crypto.randomUUID();
-    const logger = new ConsoleLogger(traceKey);
+    const logger = new WinstonLogger(traceKey);
     assert.strictEqual(logger.traceKey(), traceKey);
   });
 });

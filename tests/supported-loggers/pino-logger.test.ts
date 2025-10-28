@@ -1,20 +1,18 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import ConsoleLogger from '../../src/supported-loggers/console';
+import PinoLogger from '../../src/supported-loggers/pino';
 import { DaLoggerAbstractLogger } from '../../src/supported-loggers/logger-interface';
-import { Console } from 'node:console';
 
-describe('ConsoleLogger', () => {
+describe('PinoLogger', () => {
   it('should be an instance of DaLoggerAbstractLogger', () => {
     const traceKey = crypto.randomUUID();
-    const logger = new ConsoleLogger(traceKey);
+    const logger = new PinoLogger(traceKey);
     assert.ok(logger instanceof DaLoggerAbstractLogger);
-    assert.ok(logger.provider() instanceof Console);
   });
 
   it('should always use the same trace key', () => {
     const traceKey = crypto.randomUUID();
-    const logger = new ConsoleLogger(traceKey);
+    const logger = new PinoLogger(traceKey);
     assert.strictEqual(logger.traceKey(), traceKey);
   });
 });
