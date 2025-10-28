@@ -12,7 +12,7 @@ npm i
 
 then try these scenarios:
 
-1. Using config file, default provider: pino
+1. Using config file, default provider: `pino`
 
 ```
 node main.mjs
