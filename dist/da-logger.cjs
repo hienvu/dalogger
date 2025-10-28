@@ -1,7 +1,11 @@
 const require_rolldown_runtime = require('./_virtual/rolldown_runtime.cjs');
 const require_console = require('./supported-loggers/console.cjs');
+const require_winston = require('./supported-loggers/winston.cjs');
+const require_pino = require('./supported-loggers/pino.cjs');
 let node_async_hooks = require("node:async_hooks");
 node_async_hooks = require_rolldown_runtime.__toESM(node_async_hooks);
+let config = require("config");
+config = require_rolldown_runtime.__toESM(config);
 
 //#region src/da-logger.ts
 const _loadedLoggers = /* @__PURE__ */ new Map();
@@ -41,7 +45,25 @@ var DaLogger = class DaLogger {
 			const asyncContextId = (0, node_async_hooks.executionAsyncId)().toString();
 			_loadedLoggers.set(asyncContextId, this);
 		}
-		this._logger = new require_console.default(this._traceKey);
+		const loggerConfig = config.default.get("daLogger") || {
+			level: "debug",
+			provider: "console"
+		};
+		if (loggerConfig.provider === "winston") {
+			this._logger = new require_winston.default(this._traceKey, {
+				level: loggerConfig.level,
+				...loggerConfig.settings?.winston
+			});
+			return this._logger;
+		}
+		if (loggerConfig.provider === "pino") {
+			this._logger = new require_pino.default(this._traceKey, {
+				level: loggerConfig.level,
+				...loggerConfig.settings?.pino
+			});
+			return this._logger;
+		}
+		this._logger = new require_console.default(this._traceKey, { level: loggerConfig.level });
 		return this._logger;
 	}
 };

@@ -1,5 +1,8 @@
 import ConsoleLogger from "./supported-loggers/console.js";
+import WinstonLogger from "./supported-loggers/winston.js";
+import PinoLogger from "./supported-loggers/pino.js";
 import { AsyncLocalStorage, executionAsyncId } from "node:async_hooks";
+import config from "config";
 
 //#region src/da-logger.ts
 const _loadedLoggers = /* @__PURE__ */ new Map();
@@ -39,7 +42,25 @@ var DaLogger = class DaLogger {
 			const asyncContextId = executionAsyncId().toString();
 			_loadedLoggers.set(asyncContextId, this);
 		}
-		this._logger = new ConsoleLogger(this._traceKey);
+		const loggerConfig = config.get("daLogger") || {
+			level: "debug",
+			provider: "console"
+		};
+		if (loggerConfig.provider === "winston") {
+			this._logger = new WinstonLogger(this._traceKey, {
+				level: loggerConfig.level,
+				...loggerConfig.settings?.winston
+			});
+			return this._logger;
+		}
+		if (loggerConfig.provider === "pino") {
+			this._logger = new PinoLogger(this._traceKey, {
+				level: loggerConfig.level,
+				...loggerConfig.settings?.pino
+			});
+			return this._logger;
+		}
+		this._logger = new ConsoleLogger(this._traceKey, { level: loggerConfig.level });
 		return this._logger;
 	}
 };

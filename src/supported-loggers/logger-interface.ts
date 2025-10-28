@@ -1,24 +1,52 @@
+import { format } from 'node:util';
+import winston from 'winston';
+import pino from 'pino';
+
+export type LoggerOpts = {
+  level?: string;
+  traceKeyName?: string;
+  [key: string]: unknown;
+};
+
 export interface DaLoggerSupportedMethods {
   debug: (...args: any[]) => void;
   info: (...args: any[]) => void;
   warn: (...args: any[]) => void;
   error: (...args: any[]) => void;
   traceKey: () => string | undefined;
+  loggerOpts: () => LoggerOpts;
+  provider: () => winston.Logger | pino.Logger | Console;
 }
 
 export abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods {
   private _traceKey: string | undefined;
+  private _loggerOpts: LoggerOpts;
 
-  abstract debug(...args: any[]): void;
-  abstract info(...args: any[]): void;
-  abstract warn(...args: any[]): void;
-  abstract error(...args: any[]): void;
+  abstract provider(): winston.Logger | pino.Logger | Console;
 
-  constructor(traceKey: string) {
+  debug(...args: any[]): void {
+    this.provider().debug(format(...args));
+  }
+  info(...args: any[]): void {
+    this.provider().info(format(...args));
+  }
+  warn(...args: any[]): void {
+    this.provider().warn(format(...args));
+  }
+  error(...args: any[]): void {
+    this.provider().error(format(...args));
+  }
+
+  constructor(traceKey: string, loggerOpts?: LoggerOpts) {
     this._traceKey = traceKey;
+    this._loggerOpts = loggerOpts || {};
   }
 
   traceKey(): string | undefined {
     return this._traceKey;
+  }
+
+  loggerOpts(): LoggerOpts {
+    return this._loggerOpts;
   }
 }

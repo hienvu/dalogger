@@ -1,20 +1,48 @@
-import { DaLoggerAbstractLogger } from './logger-interface';
+import { DaLoggerAbstractLogger, LoggerOpts } from './logger-interface';
+import { SUPPORTED_LEVELS } from '../utils';
 
 export default class ConsoleLogger extends DaLoggerAbstractLogger {
-  debug(...args: any[]): void {
-    console.debug(...args, this._logTraceKey());
-  }
-  info(...args: any[]): void {
-    console.info(...args, this._logTraceKey());
-  }
-  warn(...args: any[]): void {
-    console.warn(...args, this._logTraceKey());
-  }
-  error(...args: any[]): void {
-    console.error(...args, this._logTraceKey());
+  private _console: Console;
+  private _traceKeyName: string;
+  private _logLevel: number;
+
+  constructor(traceKey: string, loggerOpts: LoggerOpts = {}) {
+    super(traceKey, loggerOpts);
+    this._traceKeyName = loggerOpts.traceKeyName || 'dalogger-trace-key';
+    this._console = console;
+    this._logLevel = (SUPPORTED_LEVELS.get(loggerOpts.level as string) || SUPPORTED_LEVELS.get('debug')) as number;
   }
 
-  private _logTraceKey(): { logTraceKey: string | undefined } {
-    return { logTraceKey: this.traceKey() };
+  provider(): Console {
+    return this._console;
+  }
+
+  debug(...args: any[]): void {
+    if (this._logLevel < (SUPPORTED_LEVELS.get('debug') || 0)) {
+      return;
+    }
+    this._console.debug(this._logTraceKey(), ...args);
+  }
+  info(...args: any[]): void {
+    if (this._logLevel < (SUPPORTED_LEVELS.get('info') || 0)) {
+      return;
+    }
+    this._console.info(this._logTraceKey(), ...args);
+  }
+  warn(...args: any[]): void {
+    if (this._logLevel < (SUPPORTED_LEVELS.get('warn') || 0)) {
+      return;
+    }
+    this._console.warn(this._logTraceKey(), ...args);
+  }
+  error(...args: any[]): void {
+    if (this._logLevel < (SUPPORTED_LEVELS.get('error') || 0)) {
+      return;
+    }
+    this._console.error(this._logTraceKey(), ...args);
+  }
+
+  private _logTraceKey(): string {
+    return `[${this._traceKeyName}: ${this.traceKey()}]`;
   }
 }

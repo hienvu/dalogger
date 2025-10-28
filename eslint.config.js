@@ -43,6 +43,7 @@ export default [
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-require-imports': 'off',
 
       // Best practices
       'no-console': ['warn', { allow: ['warn', 'error', 'debug', 'info'] }],
