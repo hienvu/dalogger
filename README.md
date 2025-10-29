@@ -9,7 +9,7 @@ and infrastructure-agnostic.
 
 > **Distributed-first logging. No trail, no tale.**
 
-Refer to [examples](/hienvu/dalogger/examples) for some usage patterns.
+Refer to [examples](/examples) for some usage patterns.
 
 ---
 
