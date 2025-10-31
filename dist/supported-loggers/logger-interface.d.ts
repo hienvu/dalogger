@@ -1,26 +1,25 @@
-import winston from "winston";
-import pino from "pino";
-
 //#region src/supported-loggers/logger-interface.d.ts
 type LoggerOpts = {
   level?: string;
   traceKeyName?: string;
   [key: string]: unknown;
 };
-interface DaLoggerSupportedMethods {
-  debug: (...args: any[]) => void;
-  info: (...args: any[]) => void;
-  warn: (...args: any[]) => void;
-  error: (...args: any[]) => void;
+interface LogProvider {
+  debug(...args: any[]): void;
+  info(...args: any[]): void;
+  warn(...args: any[]): void;
+  error(...args: any[]): void;
+}
+interface DaLoggerSupportedMethods extends LogProvider {
   traceKey: () => string | undefined;
   loggerOpts: () => LoggerOpts;
-  provider: () => winston.Logger | pino.Logger | Console;
+  provider: () => LogProvider;
   createChild: (childTraceKey?: string) => DaLoggerAbstractLogger;
 }
 declare abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods {
   private _traceKey;
   private _loggerOpts;
-  abstract provider(): winston.Logger | pino.Logger | Console;
+  abstract provider(): LogProvider;
   debug(...args: any[]): void;
   info(...args: any[]): void;
   warn(...args: any[]): void;

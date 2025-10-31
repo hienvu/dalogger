@@ -1,4 +1,4 @@
-import { DaLoggerAbstractLogger, LoggerOpts } from './logger-interface';
+import { DaLoggerAbstractLogger, LoggerOpts, LogProvider } from './logger-interface';
 import winston from 'winston';
 import { SUPPORTED_LEVELS } from '../utils';
 import { createRequire } from 'module';
@@ -44,7 +44,7 @@ export default class WinstonLogger extends DaLoggerAbstractLogger {
     });
   }
 
-  provider(): winston.Logger {
+  provider(): LogProvider {
     return this._logger;
   }
 }

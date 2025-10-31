@@ -1,4 +1,4 @@
-import { DaLoggerAbstractLogger, LoggerOpts } from './logger-interface';
+import { DaLoggerAbstractLogger, LoggerOpts, LogProvider } from './logger-interface';
 import { SUPPORTED_LEVELS } from '../utils';
 
 export default class ConsoleLogger extends DaLoggerAbstractLogger {
@@ -13,7 +13,7 @@ export default class ConsoleLogger extends DaLoggerAbstractLogger {
     this._logLevel = (SUPPORTED_LEVELS.get(loggerOpts.level as string) || SUPPORTED_LEVELS.get('debug')) as number;
   }
 
-  provider(): Console {
+  provider(): LogProvider {
     return this._console;
   }
 

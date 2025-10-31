@@ -1,6 +1,4 @@
 import { format } from 'node:util';
-import winston from 'winston';
-import pino from 'pino';
 
 export type LoggerOpts = {
   level?: string;
@@ -8,14 +6,17 @@ export type LoggerOpts = {
   [key: string]: unknown;
 };
 
-export interface DaLoggerSupportedMethods {
-  debug: (...args: any[]) => void;
-  info: (...args: any[]) => void;
-  warn: (...args: any[]) => void;
-  error: (...args: any[]) => void;
+export interface LogProvider {
+  debug(...args: any[]): void;
+  info(...args: any[]): void;
+  warn(...args: any[]): void;
+  error(...args: any[]): void;
+}
+
+export interface DaLoggerSupportedMethods extends LogProvider {
   traceKey: () => string | undefined;
   loggerOpts: () => LoggerOpts;
-  provider: () => winston.Logger | pino.Logger | Console;
+  provider: () => LogProvider;
   createChild: (childTraceKey?: string) => DaLoggerAbstractLogger;
 }
 
@@ -23,7 +24,7 @@ export abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods
   private _traceKey: string | undefined;
   private _loggerOpts: LoggerOpts;
 
-  abstract provider(): winston.Logger | pino.Logger | Console;
+  abstract provider(): LogProvider;
 
   debug(...args: any[]): void {
     this.provider().debug(format(...args));

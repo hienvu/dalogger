@@ -1,4 +1,4 @@
-import { DaLoggerAbstractLogger, LoggerOpts } from './logger-interface';
+import { DaLoggerAbstractLogger, LoggerOpts, LogProvider } from './logger-interface';
 import pino from 'pino';
 
 type PinoTarget = {
@@ -38,7 +38,7 @@ export default class PinoLogger extends DaLoggerAbstractLogger {
     this._logger = pino(args as pino.LoggerOptions);
   }
 
-  provider(): pino.Logger {
+  provider(): LogProvider {
     return this._logger;
   }
 }
