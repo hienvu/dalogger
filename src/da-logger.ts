@@ -1,81 +1,49 @@
-import { AsyncLocalStorage, executionAsyncId } from 'node:async_hooks';
-import { DaLoggerSupportedMethods } from './supported-loggers/logger-interface';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { DaLoggerAbstractLogger } from './supported-loggers/logger-interface';
 import ConsoleLogger from './supported-loggers/console';
 import WinstonLogger from './supported-loggers/winston';
 import PinoLogger from './supported-loggers/pino';
 import config from 'config';
 
-const _loadedLoggers: Map<string, DaLogger> = new Map<string, DaLogger>();
+export type LoggerAsyncStore = {
+  traceKey?: string;
+  logger?: DaLoggerAbstractLogger | undefined;
+};
+
+const localStorage = new AsyncLocalStorage<LoggerAsyncStore>({});
 
 export class DaLogger {
-  private _traceKey: string;
-  private _asyncLocalStorage: AsyncLocalStorage<{ traceKey: string }>;
-  private _logger: DaLoggerSupportedMethods | undefined;
+  static async run(asyncCallback: () => Promise<void> | void, traceKey?: string): Promise<void> {
+    await localStorage.run({}, async () => {
+      DaLogger.register(traceKey || DaLogger.generateTraceKey());
+      await Promise.resolve(asyncCallback());
+    });
+  }
 
-  static register(
-    key?: AsyncLocalStorage<{ traceKey: string | undefined }> | string | undefined,
-  ): DaLoggerSupportedMethods {
-    const asyncLocalStorage: AsyncLocalStorage<{ traceKey: string }> = new AsyncLocalStorage<{ traceKey: string }>({});
-    const asyncContextId: string = executionAsyncId().toString();
+  static generateTraceKey(prefix?: string): string {
+    return [prefix, crypto.randomUUID()].filter((i) => i).join('/');
+  }
 
-    if (_loadedLoggers.has(asyncContextId)) {
-      const logger = _loadedLoggers.get(asyncContextId)?.load();
-      if (logger) {
-        return logger;
-      }
-    }
-
-    let traceKey: string = crypto.randomUUID();
-    if (key instanceof AsyncLocalStorage) {
-      traceKey = key.getStore()?.traceKey || crypto.randomUUID();
-    } else if (key !== undefined) {
-      traceKey = key as string;
-    }
-
-    const store = asyncLocalStorage.getStore();
-
-    // Called from outside AsyncLocalStorage.run() context
+  static register(traceKey?: string): DaLoggerAbstractLogger {
+    // First step, detect whether we are in AsyncLocalStorage.run() context:
+    let store = localStorage.getStore() as LoggerAsyncStore;
     if (!store) {
-      asyncLocalStorage.enterWith({ traceKey });
-    } else {
-      store.traceKey = traceKey;
+      // not an AsyncLocalStorage.run() context, so use AsyncLocalStorage.enterWith():
+      localStorage.enterWith({});
+      store = localStorage.getStore() as LoggerAsyncStore;
     }
 
-    const logger = new DaLogger(traceKey, asyncLocalStorage);
-    _loadedLoggers.set(asyncContextId, logger);
-
-    return logger.load();
+    traceKey = traceKey || store?.traceKey || DaLogger.generateTraceKey();
+    return (store.logger = DaLogger.createLogger(traceKey));
   }
 
-  static unregister(): void {
-    const asyncContextId: string = executionAsyncId().toString();
-    _loadedLoggers.delete(asyncContextId);
-  }
-
-  constructor(traceKey: string, asyncLocalStorage: AsyncLocalStorage<{ traceKey: string }>) {
-    this._traceKey = traceKey;
-    this._asyncLocalStorage = asyncLocalStorage;
-  }
-
-  load(): DaLoggerSupportedMethods {
-    if (this._logger) {
-      return this._logger;
-    }
-
-    const store = this._asyncLocalStorage.getStore();
-    if (!store) {
-      // Called from outside AsyncLocalStorage.run() context so create a store to track logger:
-      this._asyncLocalStorage.enterWith({ traceKey: this._traceKey });
-      const asyncContextId: string = executionAsyncId().toString();
-      _loadedLoggers.set(asyncContextId, this);
-    }
-
+  static createLogger(traceKey: string): DaLoggerAbstractLogger {
     const loggerConfig: {
       level: string;
       provider: string;
       settings?: {
         winston?: {
-          transports?: { module: string; args: any }[];
+          transports?: { module: string; args: unknown }[];
         };
         pino?: {
           level?: string;
@@ -88,35 +56,35 @@ export class DaLogger {
       ...(config as any).daLogger,
     };
 
-    const logProvider = (process.env.DA_LOGGER_PROVIDER || loggerConfig.provider || 'console').toLowerCase();
+    const logProvider = (process.env.DA_LOGGER_PROVIDER || loggerConfig.provider || 'pino').toUpperCase();
 
-    if (logProvider === 'winston') {
-      this._logger = new WinstonLogger(this._traceKey, {
+    if (logProvider === 'CONSOLE') {
+      return new ConsoleLogger(traceKey, { level: loggerConfig.level });
+    }
+
+    if (logProvider === 'WINSTON') {
+      return new WinstonLogger(traceKey, {
         level: loggerConfig.level,
         ...loggerConfig.settings?.winston,
       });
-      return this._logger;
     }
 
-    if (logProvider === 'pino') {
-      this._logger = new PinoLogger(this._traceKey, { level: loggerConfig.level, ...loggerConfig.settings?.pino });
-      return this._logger;
-    }
-
-    this._logger = new ConsoleLogger(this._traceKey, { level: loggerConfig.level });
-
-    return this._logger;
+    // default Pino
+    return new PinoLogger(traceKey, { level: loggerConfig.level, ...loggerConfig.settings?.pino });
   }
 }
 
-export const logger = () => {
-  const asyncId: string = executionAsyncId().toString();
-  const logger = _loadedLoggers.get(asyncId);
-  if (logger) {
-    return logger.load();
-  }
+const DEFAULT_LOGGER = DaLogger.createLogger(crypto.randomUUID());
 
-  return DaLogger.register();
+export const logger = () => {
+  // ensuring logging doesn't interfere with processing flow:
+  try {
+    const store = localStorage.getStore() as LoggerAsyncStore;
+    return store?.logger || DaLogger.register();
+  } catch (error) {
+    console.error(error);
+    return DEFAULT_LOGGER;
+  }
 };
 
 export default logger;

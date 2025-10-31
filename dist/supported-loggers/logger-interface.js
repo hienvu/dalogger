@@ -20,6 +20,10 @@ var DaLoggerAbstractLogger = class {
 		this._traceKey = traceKey;
 		this._loggerOpts = loggerOpts || {};
 	}
+	createChild(childTraceKey) {
+		const traceKey = [this._traceKey, childTraceKey].join("/");
+		return new this.constructor(traceKey, this._loggerOpts);
+	}
 	traceKey() {
 		return this._traceKey;
 	}

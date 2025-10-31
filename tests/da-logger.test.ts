@@ -2,9 +2,8 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import logger, { DaLogger } from '../src/da-logger';
 import { DaLoggerAbstractLogger } from '../src/supported-loggers/logger-interface';
-import { AsyncLocalStorage } from 'node:async_hooks';
 
-describe('default exported logger', () => {
+describe('default exported logger()', () => {
   it('should be an instance of DaLogger Supported Logger', () => {
     assert.ok(logger() instanceof DaLoggerAbstractLogger);
   });
@@ -13,85 +12,55 @@ describe('default exported logger', () => {
   });
 });
 
-describe('DaLogger Class', () => {
-  it('should be an instance of DaLogger and a supported logger on load()', () => {
-    const asyncLocalStorage = new AsyncLocalStorage<{ traceKey: string }>();
-
-    const traceKey = 'example-trace-key';
-    const daLogger = new DaLogger(traceKey, asyncLocalStorage);
-    assert.ok(daLogger instanceof DaLogger);
-
-    const loadedLogger = daLogger.load();
-    assert.strictEqual(loadedLogger.traceKey(), traceKey);
-    assert.ok(loadedLogger instanceof DaLoggerAbstractLogger);
+describe('exported DaLogger class', () => {
+  it('should support DaLogger.register', () => {
+    assert.ok(DaLogger.register('traceKey') instanceof DaLoggerAbstractLogger);
+    assert.strictEqual(logger().traceKey(), 'traceKey');
   });
 
-  it('should use the same trace key under same async context', () => {
-    const asyncLocalStorage = new AsyncLocalStorage<{ traceKey: string }>();
-    const traceKey = 'example-trace-key';
-    const daLogger1 = new DaLogger(traceKey, asyncLocalStorage).load();
-    const daLogger2 = DaLogger.register();
-    assert.strictEqual(daLogger1.traceKey(), daLogger2.traceKey());
+  it('should support DaLogger.run', async () => {
+    await DaLogger.run(() => {
+      assert.ok(logger() instanceof DaLoggerAbstractLogger);
+      assert.strictEqual(logger().traceKey(), 'traceKey');
+    }, 'traceKey');
   });
 
-  it('should use different trace keys under different async context', async () => {
-    let traceKey1, traceKey2;
+  it('should support DaLogger.createLogger', () => {
+    const myLogger = DaLogger.createLogger('traceKey');
+    assert.ok(myLogger instanceof DaLoggerAbstractLogger);
+    assert.strictEqual(myLogger.traceKey(), 'traceKey');
+  });
 
-    // Simulate different async contexts via AsyncLocalStorage.run()
-    await (() => {
-      const asyncLocalStorage1 = new AsyncLocalStorage<{ traceKey: string }>();
-      asyncLocalStorage1.run({ traceKey: 'traceKey1' }, () => {
-        traceKey1 = new DaLogger('traceKey1', asyncLocalStorage1).load().traceKey();
-      });
-    })();
-
-    await (() => {
-      const asyncLocalStorage2 = new AsyncLocalStorage<{ traceKey: string }>();
-      asyncLocalStorage2.run({ traceKey: 'traceKey2' }, () => {
-        traceKey2 = new DaLogger('traceKey2', asyncLocalStorage2).load().traceKey();
-      });
-    })();
-
-    assert.strictEqual(traceKey1, 'traceKey1');
-    assert.strictEqual(traceKey2, 'traceKey2');
+  it('should support DaLogger.generateTraceKey', () => {
+    assert.ok(DaLogger.generateTraceKey());
+    assert.ok(DaLogger.generateTraceKey('prefix').match(/^prefix\//));
   });
 });
 
-describe('logger() - async context', () => {
-  it('should use same trace key across all logger() consumers under same async context', async () => {
-    const { moduleALogger } = await import('./mocks/module-a');
-    const { moduleBLogger } = await import('./mocks/module-b');
-    assert.strictEqual(moduleALogger().traceKey(), moduleBLogger().traceKey());
+describe('Async context tracing', () => {
+  it('should use the same trace key - via register()', async () => {
+    const traceKey = 'traceKey';
+    DaLogger.register(traceKey);
+    const trigger = () => {
+      assert.strictEqual(logger().traceKey(), traceKey);
+    };
+    await Promise.all([trigger(), trigger()]);
   });
 
-  it('should use different trace key across all logger() consumers under different async context', async () => {
-    const { moduleALogger } = await import('./mocks/module-a');
-    const { moduleBLogger } = await import('./mocks/module-b');
-    let moduleATraceKey1, moduleBTraceKey1, moduleATraceKey2, moduleBTraceKey2;
+  it('should use the same trace key - via run()', async () => {
+    const traceKey = 'traceKey';
+    await DaLogger.run(() => {
+      assert.strictEqual(logger().traceKey(), traceKey);
+    }, traceKey);
+  });
 
-    // Simulate different async contexts via AsyncLocalStorage.run()
-    await (() => {
-      const asyncLocalStorage1 = new AsyncLocalStorage<{ traceKey: string }>();
-      asyncLocalStorage1.run({ traceKey: 'traceKey1' }, () => {
-        DaLogger.register(asyncLocalStorage1);
-        moduleATraceKey1 = moduleALogger().traceKey();
-        moduleBTraceKey1 = moduleBLogger().traceKey();
-      });
-    })();
-
-    await (() => {
-      const asyncLocalStorage2 = new AsyncLocalStorage<{ traceKey: string }>();
-      asyncLocalStorage2.run({ traceKey: 'traceKey2' }, () => {
-        DaLogger.register(asyncLocalStorage2);
-        moduleATraceKey2 = moduleALogger().traceKey();
-        moduleBTraceKey2 = moduleBLogger().traceKey();
-      });
-    })();
-
-    assert.strictEqual(moduleATraceKey1, 'traceKey1');
-    assert.strictEqual(moduleBTraceKey1, 'traceKey1');
-
-    assert.strictEqual(moduleATraceKey2, 'traceKey2');
-    assert.strictEqual(moduleBTraceKey2, 'traceKey2');
+  it('should support complex tracing flow', async () => {
+    const mainTraceKey = 'mainTraceKey';
+    const perTaskTraceKey = 'perTaskTraceKey';
+    DaLogger.register(mainTraceKey);
+    await DaLogger.run(() => {
+      assert.strictEqual(logger().traceKey(), perTaskTraceKey);
+    }, perTaskTraceKey);
+    assert.strictEqual(logger().traceKey(), mainTraceKey);
   });
 });

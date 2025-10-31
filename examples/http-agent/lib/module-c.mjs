@@ -1,5 +1,5 @@
 import logger from '@hvu/dalogger';
 
-export async function processC(task) {
+export function processC(task) {
   logger().debug('C is processing', task);
 }

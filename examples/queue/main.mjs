@@ -8,18 +8,18 @@ import logger, { DaLogger } from '@hvu/dalogger';
  */
 function main() {
   const tasks = [];
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 3; i++) {
     tasks.push({ id: i });
   }
 
   for (const task of tasks) {
     const asyncLocalStorage = new AsyncLocalStorage();
-    asyncLocalStorage.run({ traceKey: task.id }, () => {
+    asyncLocalStorage.run({ traceKey: task.id }, async () => {
       // Setup
       DaLogger.register(asyncLocalStorage);
 
       // Process
-      processTask(task);
+      await processTask(task);
       logger().info('Task processed', task);
 
       // Cleanup

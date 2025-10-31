@@ -1,2 +1,2 @@
-import { DaLogger, logger } from "./da-logger.js";
-export { DaLogger, logger as default, logger };
+import { DaLogger, LoggerAsyncStore, logger } from "./da-logger.js";
+export { DaLogger, LoggerAsyncStore, logger as default, logger };

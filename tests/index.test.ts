@@ -16,7 +16,4 @@ describe('exported DaLogger class', () => {
   it('should support DaLogger.register', () => {
     assert.ok(DaLogger.register() instanceof DaLoggerAbstractLogger);
   });
-  it('should support DaLogger.unregister', () => {
-    assert.strictEqual(DaLogger.unregister(), undefined);
-  });
 });

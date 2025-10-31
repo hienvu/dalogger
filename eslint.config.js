@@ -14,6 +14,7 @@ export default [
       '**/coverage/',
       '**/*.test.cjs',
       '**/dev-bin/',
+      '**/scrapbook',
     ]
   },
   prettierConfig,

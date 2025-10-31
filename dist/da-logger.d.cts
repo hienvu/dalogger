@@ -1,20 +1,16 @@
-import { DaLoggerSupportedMethods } from "./supported-loggers/logger-interface.cjs";
-import { AsyncLocalStorage } from "node:async_hooks";
+import { DaLoggerAbstractLogger } from "./supported-loggers/logger-interface.cjs";
 
 //#region src/da-logger.d.ts
+type LoggerAsyncStore = {
+  traceKey?: string;
+  logger?: DaLoggerAbstractLogger | undefined;
+};
 declare class DaLogger {
-  private _traceKey;
-  private _asyncLocalStorage;
-  private _logger;
-  static register(key?: AsyncLocalStorage<{
-    traceKey: string | undefined;
-  }> | string | undefined): DaLoggerSupportedMethods;
-  static unregister(): void;
-  constructor(traceKey: string, asyncLocalStorage: AsyncLocalStorage<{
-    traceKey: string;
-  }>);
-  load(): DaLoggerSupportedMethods;
+  static run(asyncCallback: () => Promise<void> | void, traceKey?: string): Promise<void>;
+  static generateTraceKey(prefix?: string): string;
+  static register(traceKey?: string): DaLoggerAbstractLogger;
+  static createLogger(traceKey: string): DaLoggerAbstractLogger;
 }
-declare const logger: () => DaLoggerSupportedMethods;
+declare const logger: () => DaLoggerAbstractLogger;
 //#endregion
-export { DaLogger, logger };
+export { DaLogger, LoggerAsyncStore, logger };

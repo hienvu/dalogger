@@ -16,6 +16,7 @@ export interface DaLoggerSupportedMethods {
   traceKey: () => string | undefined;
   loggerOpts: () => LoggerOpts;
   provider: () => winston.Logger | pino.Logger | Console;
+  createChild: (childTraceKey?: string) => DaLoggerAbstractLogger;
 }
 
 export abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods {
@@ -40,6 +41,11 @@ export abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods
   constructor(traceKey: string, loggerOpts?: LoggerOpts) {
     this._traceKey = traceKey;
     this._loggerOpts = loggerOpts || {};
+  }
+
+  createChild(childTraceKey?: string): DaLoggerAbstractLogger {
+    const traceKey = [this._traceKey, childTraceKey].join('/');
+    return new (this.constructor as any)(traceKey, this._loggerOpts);
   }
 
   traceKey(): string | undefined {
