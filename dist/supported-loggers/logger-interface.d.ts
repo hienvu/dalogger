@@ -4,22 +4,22 @@ type LoggerOpts = {
   traceKeyName?: string;
   [key: string]: unknown;
 };
-interface LogProvider {
+interface DaLoggerLogProvider {
   debug(...args: any[]): void;
   info(...args: any[]): void;
   warn(...args: any[]): void;
   error(...args: any[]): void;
 }
-interface DaLoggerSupportedMethods extends LogProvider {
+interface DaLoggerSupportedMethods extends DaLoggerLogProvider {
   traceKey: () => string | undefined;
   loggerOpts: () => LoggerOpts;
-  provider: () => LogProvider;
+  provider: () => DaLoggerLogProvider;
   createChild: (childTraceKey?: string) => DaLoggerAbstractLogger;
 }
 declare abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods {
   private _traceKey;
   private _loggerOpts;
-  abstract provider(): LogProvider;
+  abstract provider(): DaLoggerLogProvider;
   debug(...args: any[]): void;
   info(...args: any[]): void;
   warn(...args: any[]): void;

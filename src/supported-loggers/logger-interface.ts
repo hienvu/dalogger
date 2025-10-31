@@ -6,17 +6,17 @@ export type LoggerOpts = {
   [key: string]: unknown;
 };
 
-export interface LogProvider {
+export interface DaLoggerLogProvider {
   debug(...args: any[]): void;
   info(...args: any[]): void;
   warn(...args: any[]): void;
   error(...args: any[]): void;
 }
 
-export interface DaLoggerSupportedMethods extends LogProvider {
+export interface DaLoggerSupportedMethods extends DaLoggerLogProvider {
   traceKey: () => string | undefined;
   loggerOpts: () => LoggerOpts;
-  provider: () => LogProvider;
+  provider: () => DaLoggerLogProvider;
   createChild: (childTraceKey?: string) => DaLoggerAbstractLogger;
 }
 
@@ -24,7 +24,7 @@ export abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods
   private _traceKey: string | undefined;
   private _loggerOpts: LoggerOpts;
 
-  abstract provider(): LogProvider;
+  abstract provider(): DaLoggerLogProvider;
 
   debug(...args: any[]): void {
     this.provider().debug(format(...args));
