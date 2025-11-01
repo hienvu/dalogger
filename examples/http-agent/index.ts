@@ -14,7 +14,7 @@ function axiosAgent(args: AxiosRequestConfig): AxiosInstance {
     headers,
   });
 
-  agent.interceptors.request.use((config: AxiosRequestConfig) => {
+  agent.interceptors.request.use((config) => {
     agentLogger.debug(
       `[REQUEST] ${config.method?.toUpperCase()} ${config.baseURL ? config.baseURL + config.url : config.url}`,
       {
