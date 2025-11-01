@@ -1,7 +1,6 @@
 import { processTask } from './lib/processor.mjs';
 import logger, { DaLogger } from '@hvu/dalogger';
 import express from 'express';
-import console from 'node:console';
 
 const app = express();
 
@@ -19,6 +18,6 @@ app.get('/', async (req, res) => {
   res.send('Hello World');
 });
 
-console.log('try this command: ab -n 10 -c 10 http://localhost:3000/');
+console.info('try this command: ab -n 5 -c 5 http://localhost:3000/');
 
 app.listen(3000);
