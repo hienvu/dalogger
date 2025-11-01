@@ -1,0 +1,28 @@
+{
+  "daLogger": {
+    "level": "debug",
+    "traceKeyName": "dalogger-trace-key",
+    "provider": "pino",
+    "settings": {
+      "pino": {
+        "transport": {
+          "targets": [
+            {
+              "target": "pino-pretty"
+            }
+          ]
+        }
+      },
+      "winston": {
+        "transports": [
+          {
+            "module": "file",
+            "args": {
+              "filename": "/tmp/dalogger-winston.log"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

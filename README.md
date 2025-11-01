@@ -1,111 +1,185 @@
-*** TEMPLATE - REMOVE ME ***
+# DaLogger
+
+## Overview
+
+DaLogger is a lightweight, distributed-first logging utility designed for modern microservices.
+It automatically correlates trace keys across services and functions, ensuring every log entry is
+linked to its originating request — making debugging in distributed environments fast, consistent,
+and infrastructure-agnostic.
+
+> **Distributed-first logging. No trail, no tale.**
+
+Refer to [examples](/examples) for some usage patterns.
+
+---
+
 ## Motivation
 
-At best, the ritual of starting a new module is just a chore that turns into the same old boilerplate. I built this so I don't have to think about it - though I still tip my hat to the giants whose work made this possible.
+### The Problem: Lost in the Logs
 
-This is mainly for personal use, but feel free to fork and adapt to your needs.
+A user reports: _"Checkout failed."_
 
-### Get Started
+Where do you start? That single failure involves logs from multiple services:
 
-1. Create a repo using this as a template then create three branches from master: `release-patch`, `release-minor`, and `release-major`.
-2. Update `package.json` with your project's description, keywords, name, etc.
-3. Run `npm i && npm run update-deps` to install and update all dependencies.
-
-Replace with the real Get Started. For example:
-
-#### Installation
-
-```bash
-npm i git+ssh://git@github.com:hienvu/node-module-template-private.git
+```
+Orders Service → Payment Service → Inventory Service → Shipping Service
 ```
 
-#### Usage
+Each service logs independently. Without trace correlation, you're:
 
-TypeScript - test.ts:
+- Grep’ing timestamps across services hoping they line up
+- Guessing which errors belong to which request
+- Spending hours reconstructing what should take seconds
+
+**Example (Without DaLogger):**
+
+```
+# Orders Service
+[10:32:15] INFO: Processing order #12345
+[10:32:18] INFO: Calling payment service
+
+# Payment Service
+[10:32:16] INFO: Validating card ending in 4242
+[10:32:17] ERROR: Payment declined - insufficient funds
+
+# Inventory Service
+[10:32:16] INFO: Reserving item SKU-789
+[10:32:19] INFO: Reservation released
+```
+
+**Which payment failure caused which order to fail?**  
+You can’t tell.
+
+---
+
+### The Solution: Automatic Trace Correlation
+
+DaLogger tags every log from the same request with a unique trace key:
+
+```
+# Orders Service
+[10:32:15] INFO (trace-abc-123): Processing order #12345
+[10:32:18] INFO (trace-abc-123): Calling payment service
+
+# Payment Service
+[10:32:16] INFO (trace-abc-123): Validating card ending in 4242
+[10:32:17] ERROR (trace-abc-123): Payment declined - insufficient funds
+
+# Inventory Service
+[10:32:16] INFO (trace-abc-123): Reserving item SKU-789
+[10:32:19] INFO (trace-abc-123): Reservation released
+```
+
+**Query in your log aggregator:**
+
+```
+trace-abc-123
+```
+
+**Result:** Complete request lifecycle across all services ✅
+
+---
+
+## How It Works
+
+DaLogger automatically creates and propagates a `traceKey` across services and modules, so every log line is correlated without manual effort.
+
+### 1. Entry Point (Orders Service)
+
 ```typescript
-import helloWorld, {cheerio} from '@hvu/my-package';
+DaLogger.register(); // Auto-generates trace-abc-123
 
-const hello: string = helloWorld();
-const goodbye: string = cheerio();
+logger().info('Processing order');
 
-console.log(`Say ${hello} ... and wave ${goodbye}`);
+// Forward trace to downstream service
+await fetch('/payment', {
+  headers: { 'x-trace-key': logger().traceKey() },
+});
 ```
 
-ESM - test.mjs:
-```javascript
-import helloWorld, {cheerio} from '@hvu/my-package';
+### 2. Downstream Service (Payment Service)
 
-console.log(helloWorld());
-console.log(cheerio());
+```typescript
+const traceKey = req.headers['x-trace-key'];
+DaLogger.register(traceKey); // Reuses trace-abc-123
 
+logger().info('Validating card'); // Auto-tagged
 ```
 
-CommonJS - test.cjs
-```javascript
-const {helloWorld, cheerio} = require('@hvu/my-package');
+### 3. Your Modules (Zero Trace Awareness)
 
-console.log(helloWorld());
-console.log(cheerio());
-```
-*** END OF TEMPLATE - REMOVE ME ***
+```typescript
+// inventory-module.ts
+import logger from 'dalogger';
 
-
-## Development Overview
-
-1. Develop on a feature branch (based off `master`) and raise a PR to the appropriate `release-` branch:
-   - `release-patch` for bug fixes
-   - `release-minor` for new features
-   - `release-major` for breaking changes
-2. Once merged and tested, raise a PR from the `release-` branch to `master` to create an official release.
-
-
-### Features
-
-- ✅ Full TypeScript support with type definitions
-- ✅ Universal compatibility (ESM, CommonJS, TypeScript)
-- ✅ Automated semantic versioning via CI/CD
-- ✅ Built with modern tooling (tsdown, Node test runner)
-
-### Recommended Development Experience (DX) Flow
-
-1. Run `npm run dev` to watch and rebuild `dist` on changes.
-2. Run `npm run test:watch` to watch and run tests as changes are made to `src`.
-3. Raise a PR to the appropriate `release-` branch to allow CI/CD to manage versioning automatically.
-
-For additional developer commands, see the `scripts` section in `package.json`.
-
-### CI/CD Workflow
-
-See `.github/` for all ready-made GitHub workflows. Here's how it works:
-
-#### Branch Strategy
-
-```
-feature/my-feature → release-{patch|minor|major} →  master
-                     (RC version)                   (Official release)
+export function reserveItem(sku: string) {
+  logger().info(`Reserving ${sku}`); // Trace key added automatically
+}
 ```
 
-#### Workflow Steps
+No prop-drilling.  
+No manual trace management.  
+**Just works.**
 
-1. **PR Testing**: All PRs trigger automated unit tests.
-2. **Release Candidate**: When a feature branch merges to a `release-` branch, CI builds an RC version (e.g., `1.2.3-rc.1`).
-3. **Official Release**: When a `release-` branch merges to `master`, CI:
-   - Removes the `-rc.` suffix to create the official version
-   - Publishes the release
-   - Resets the release branch to match `master` for the next cycle
+---
 
-#### Version Control Branches
+## What DaLogger Does (and Doesn’t Do)
 
-Three branches control versioning:
-- `release-patch`: Bug fixes (1.0.0 → 1.0.1)
-- `release-minor`: New features (1.0.0 → 1.1.0)
-- `release-major`: Breaking changes (1.0.0 → 2.0.0)
+✅ **DaLogger Provides:**
 
-#### ⚠️ Important: Sequential Releases Only
+- Automatic trace key generation and propagation
+- Thin wrapper around Pino/Winston (no lock-in)
 
-**Never merge multiple release branches to `master` simultaneously.** Releases must be done sequentially to avoid version conflicts. 
+❌ **DaLogger is NOT:**
 
-✅ Correct: Merge `release-patch` → wait for completion → merge `release-minor`
+- A log aggregator (use AWS CloudWatch / GCP Log Explorer / etc.)
+- A new logger implementation (uses Pino/Winston under the hood)
+- A monitoring system (use your aggregator’s alerting features)
 
+**DaLogger ensures your logs can be correlated.**  
+Your aggregator handles searching, filtering, and alerting.
 
-❌ Incorrect: Merge `release-patch` and `release-minor` at the same time
+---
+
+## Why Two Loggers? (Pino vs Winston)
+
+DaLogger supports both because different environments demand different trade-offs.
+
+### 🏎️ Pino: Speed Over Guarantees
+
+**Performance:** 5–10× faster than Winston (async I/O via worker threads)
+
+**Reliability Caveat:** In short-lived serverless functions (e.g., AWS Lambda, Cloud Functions),  
+logs may not flush before termination — especially with:
+
+- Async transports (`pino-http-send`, remote syslog)
+- Network-based destinations
+- File streams that buffer
+
+This behavior has been observed in production when functions terminate before worker threads complete writes.
+
+**Best For:** Long-running containers (ECS, Kubernetes, Cloud Run, App Engine)  
+where process lifetime ≫ log flush time.
+
+---
+
+### 🛡️ Winston: Reliability Over Speed
+
+**Performance:** 5–10× slower than Pino (synchronous I/O on the main thread)
+
+**Reliability:** Guarantees delivery in serverless — all writes complete before function returns,  
+so logs aren’t lost to premature termination.
+
+**Best For:** Serverless (Lambda, Cloud Functions) or any environment where  
+delivery certainty matters more than throughput.
+
+---
+
+## Design Philosophy: “No Trail, No Tale”
+
+Without proper breadcrumbs (trace keys), your logs can’t tell the complete story.
+
+DaLogger ensures every log entry leaves a trail that connects back to the original request —  
+making distributed debugging **deterministic**, not guesswork.
+
+> **Distributed-first logging. No trail, no tale.**

@@ -1,7 +1,7 @@
 {
-  "name": "@hvu/my-package",
-  "version": "0.0.0",
-  "description": "Node module template - supporting TypeScript, ESM, CJS, and GitHub Actions",
+  "name": "@hvu/dalogger",
+  "version": "1.0.0-rc.0",
+  "description": "Distributed-first logging. No trail, no tale.",
   "engines": {
     "node": ">=20.19.0"
   },
@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "update-deps": "npx npm-check-updates -u && npm i",
-    "build": "npm run lint && npm run format && tsdown",
+    "build": "npm run lint:fix && npm run format && tsdown",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
+    "@types/config": "^3.3.5",
     "@types/node": "^24.7.2",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.46.1",
@@ -48,6 +49,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.4.0",
+    "pino-pretty": "^13.1.2",
     "prettier": "^3.6.2",
     "tsdown": "^0.15.7",
     "tsx": "^4.20.6",
@@ -55,10 +57,16 @@
     "typescript-eslint": "^8.46.1"
   },
   "keywords": [
-    "node",
-    "template",
-    "module"
+    "logger",
+    "log",
+    "logging",
+    "distributed"
   ],
   "author": "Hien Vu",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "config": "^4.1.1",
+    "pino": "^10.1.0",
+    "winston": "^3.18.3"
+  }
 }

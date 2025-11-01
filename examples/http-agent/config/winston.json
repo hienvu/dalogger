@@ -1,0 +1,6 @@
+{
+  "daLogger": {
+    "level": "info",
+    "provider": "winston"
+  }
+}
