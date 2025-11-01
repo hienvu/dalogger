@@ -2,6 +2,14 @@ Each example is designed to demonstrate a usage pattern.
 
 ## SYNOPSIS
 
+### Install:
+
+```
+npm i https://github.com/hienvu/dalogger 
+```
+
+### Usage
+
 TypeScript & ECMAScript:
 
 ```
