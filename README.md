@@ -95,8 +95,6 @@ logger().info('Processing order');
 await fetch('/payment', {
   headers: { 'x-trace-key': logger().traceKey() },
 });
-
-DaLogger.unregister();
 ```
 
 ### 2. Downstream Service (Payment Service)
@@ -106,8 +104,6 @@ const traceKey = req.headers['x-trace-key'];
 DaLogger.register(traceKey); // Reuses trace-abc-123
 
 logger().info('Validating card'); // Auto-tagged
-
-DaLogger.unregister();
 ```
 
 ### 3. Your Modules (Zero Trace Awareness)
@@ -133,7 +129,6 @@ No manual trace management.
 
 - Automatic trace key generation and propagation
 - Thin wrapper around Pino/Winston (no lock-in)
-- Explicit lifecycle management for serverless (`register()` → `unregister()`)
 
 ❌ **DaLogger is NOT:**
 
