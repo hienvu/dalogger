@@ -2,7 +2,7 @@ import { processTask } from './lib/processor.mjs';
 import logger, { DaLogger } from '@hvu/dalogger';
 
 /*
- **  Each task will be uniquely using its supplied trace key.
+ **  Each task will use its supplied trace key.
  **  Each task will randomly fail to simulate error scenarios.
  */
 function main() {
