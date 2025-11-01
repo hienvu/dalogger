@@ -17,4 +17,14 @@ describe('WinstonLogger', () => {
     const logger = new WinstonLogger(traceKey);
     assert.strictEqual(logger.traceKey(), traceKey);
   });
+
+  it('should create a child logger', () => {
+    const traceKey = crypto.randomUUID();
+    const childTraceKey = crypto.randomUUID();
+    const logger = new WinstonLogger(traceKey);
+    const childLogger = logger.createChild(childTraceKey);
+    assert.ok(childLogger instanceof WinstonLogger);
+    assert.ok(childLogger.provider() instanceof winston.Logger);
+    assert.strictEqual(childLogger.traceKey(), [traceKey, childTraceKey].join('/'));
+  });
 });

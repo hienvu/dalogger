@@ -17,7 +17,7 @@ export interface DaLoggerSupportedMethods extends DaLoggerLogProvider {
   traceKey: () => string | undefined;
   loggerOpts: () => LoggerOpts;
   provider: () => DaLoggerLogProvider;
-  createChild: (childTraceKey?: string) => DaLoggerAbstractLogger;
+  createChild: (childTraceKey?: string, meta?: Record<string, unknown>) => DaLoggerAbstractLogger;
 }
 
 export abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods {
@@ -25,6 +25,7 @@ export abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods
   private _loggerOpts: LoggerOpts;
 
   abstract provider(): DaLoggerLogProvider;
+  abstract createChild(childTraceKey?: string, meta?: Record<string, unknown>): DaLoggerAbstractLogger;
 
   debug(...args: any[]): void {
     this.provider().debug(format(...args));
@@ -42,11 +43,6 @@ export abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods
   constructor(traceKey: string, loggerOpts?: LoggerOpts) {
     this._traceKey = traceKey;
     this._loggerOpts = loggerOpts || {};
-  }
-
-  createChild(childTraceKey?: string): DaLoggerAbstractLogger {
-    const traceKey = [this._traceKey, childTraceKey].join('/');
-    return new (this.constructor as any)(traceKey, this._loggerOpts);
   }
 
   traceKey(): string | undefined {

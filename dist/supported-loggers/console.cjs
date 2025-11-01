@@ -2,7 +2,7 @@ const require_logger_interface = require('./logger-interface.cjs');
 const require_utils = require('../utils.cjs');
 
 //#region src/supported-loggers/console.ts
-var ConsoleLogger = class extends require_logger_interface.DaLoggerAbstractLogger {
+var ConsoleLogger = class ConsoleLogger extends require_logger_interface.DaLoggerAbstractLogger {
 	_console;
 	_traceKeyName;
 	_logLevel;
@@ -11,6 +11,13 @@ var ConsoleLogger = class extends require_logger_interface.DaLoggerAbstractLogge
 		this._traceKeyName = loggerOpts.traceKeyName || "dalogger-trace-key";
 		this._console = console;
 		this._logLevel = require_utils.SUPPORTED_LEVELS.get(loggerOpts.level) || require_utils.SUPPORTED_LEVELS.get("debug");
+	}
+	createChild(childTraceKey = crypto.randomUUID(), meta) {
+		return new ConsoleLogger([
+			this.traceKey(),
+			childTraceKey,
+			JSON.stringify(meta)
+		].filter((i) => i).join("/"), this.loggerOpts());
 	}
 	provider() {
 		return this._console;

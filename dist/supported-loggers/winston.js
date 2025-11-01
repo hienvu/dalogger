@@ -5,10 +5,14 @@ import { createRequire } from "module";
 
 //#region src/supported-loggers/winston.ts
 const require = createRequire(import.meta.url);
-var WinstonLogger = class extends DaLoggerAbstractLogger {
+var WinstonLogger = class WinstonLogger extends DaLoggerAbstractLogger {
 	_logger;
-	constructor(traceKey, loggerOpts = {}) {
+	constructor(traceKey, loggerOpts = {}, logger) {
 		super(traceKey, loggerOpts);
+		if (logger) {
+			this._logger = logger;
+			return;
+		}
 		const traceKeyName = loggerOpts.traceKeyName || "dalogger-trace-key";
 		const level = loggerOpts.level || "debug";
 		const transports = (loggerOpts.transports || []).map((transport) => {
@@ -28,6 +32,15 @@ var WinstonLogger = class extends DaLoggerAbstractLogger {
 			exitOnError: false,
 			defaultMeta: { [traceKeyName]: traceKey }
 		});
+	}
+	createChild(childTraceKey = crypto.randomUUID(), meta) {
+		const traceKey = [this.traceKey(), childTraceKey].join("/");
+		const traceKeyName = `${this.loggerOpts().traceKeyName || "dalogger-trace-key"}`;
+		const childLogger = this._logger.child({ childLogger: {
+			[traceKeyName]: traceKey,
+			...meta
+		} });
+		return new WinstonLogger(traceKey, this.loggerOpts(), childLogger);
 	}
 	provider() {
 		return this._logger;

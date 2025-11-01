@@ -6,7 +6,7 @@ let agentId = 0;
 function axiosAgent(args: AxiosRequestConfig): AxiosInstance {
   const headers = args.headers || {};
 
-  const agentLogger = logger().createChild((++agentId).toString());
+  const agentLogger = logger().createChild((++agentId).toString(), { agentId });
   headers['dalogger-trace-key'] = agentLogger.traceKey();
 
   const agent = axios.create({
@@ -25,8 +25,6 @@ function axiosAgent(args: AxiosRequestConfig): AxiosInstance {
   });
 
   agent.interceptors.response.use((response: AxiosResponse) => {
-    //console.log('executionAsyncId 3 - agent', executionAsyncId().toString());
-    //console.log('triggerAsyncId 3 - agent', triggerAsyncId().toString());
     agentLogger.debug(
       `[RESPONSE] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.baseURL ? response.config.baseURL + response.config.url : response.config.url}`,
       {

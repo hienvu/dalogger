@@ -15,4 +15,13 @@ describe('PinoLogger', () => {
     const logger = new PinoLogger(traceKey);
     assert.strictEqual(logger.traceKey(), traceKey);
   });
+
+  it('should create a child logger', () => {
+    const traceKey = crypto.randomUUID();
+    const childTraceKey = crypto.randomUUID();
+    const logger = new PinoLogger(traceKey);
+    const childLogger = logger.createChild(childTraceKey);
+    assert.ok(childLogger instanceof PinoLogger);
+    assert.strictEqual(childLogger.traceKey(), [traceKey, childTraceKey].join('/'));
+  });
 });

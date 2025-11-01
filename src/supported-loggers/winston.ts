@@ -12,8 +12,14 @@ type WinstonTransport = {
 export default class WinstonLogger extends DaLoggerAbstractLogger {
   private _logger: winston.Logger;
 
-  constructor(traceKey: string, loggerOpts: LoggerOpts = {}) {
+  constructor(traceKey: string, loggerOpts: LoggerOpts = {}, logger?: DaLoggerLogProvider) {
     super(traceKey, loggerOpts);
+
+    if (logger) {
+      this._logger = logger as winston.Logger;
+      return;
+    }
+
     const traceKeyName = loggerOpts.traceKeyName || 'dalogger-trace-key';
     const level = loggerOpts.level || 'debug';
     const transports = ((loggerOpts.transports as WinstonTransport[]) || []).map((transport: WinstonTransport) => {
@@ -42,6 +48,19 @@ export default class WinstonLogger extends DaLoggerAbstractLogger {
         [traceKeyName]: traceKey,
       },
     });
+  }
+
+  createChild(childTraceKey: string = crypto.randomUUID(), meta?: Record<string, unknown>): DaLoggerAbstractLogger {
+    const traceKey = [this.traceKey(), childTraceKey].join('/');
+    const traceKeyName = `${this.loggerOpts().traceKeyName || 'dalogger-trace-key'}`;
+    const childLogger = this._logger.child({
+      childLogger: {
+        [traceKeyName]: traceKey,
+        ...meta,
+      },
+    });
+
+    return new WinstonLogger(traceKey, this.loggerOpts(), childLogger);
   }
 
   provider(): DaLoggerLogProvider {

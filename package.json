@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "update-deps": "npx npm-check-updates -u && npm i",
-    "build": "npm run lint && npm run format && tsdown",
+    "build": "npm run lint:fix && npm run format && tsdown",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

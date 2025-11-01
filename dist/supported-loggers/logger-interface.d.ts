@@ -14,18 +14,18 @@ interface DaLoggerSupportedMethods extends DaLoggerLogProvider {
   traceKey: () => string | undefined;
   loggerOpts: () => LoggerOpts;
   provider: () => DaLoggerLogProvider;
-  createChild: (childTraceKey?: string) => DaLoggerAbstractLogger;
+  createChild: (childTraceKey?: string, meta?: Record<string, unknown>) => DaLoggerAbstractLogger;
 }
 declare abstract class DaLoggerAbstractLogger implements DaLoggerSupportedMethods {
   private _traceKey;
   private _loggerOpts;
   abstract provider(): DaLoggerLogProvider;
+  abstract createChild(childTraceKey?: string, meta?: Record<string, unknown>): DaLoggerAbstractLogger;
   debug(...args: any[]): void;
   info(...args: any[]): void;
   warn(...args: any[]): void;
   error(...args: any[]): void;
   constructor(traceKey: string, loggerOpts?: LoggerOpts);
-  createChild(childTraceKey?: string): DaLoggerAbstractLogger;
   traceKey(): string | undefined;
   loggerOpts(): LoggerOpts;
 }

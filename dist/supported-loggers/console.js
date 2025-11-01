@@ -2,7 +2,7 @@ import { DaLoggerAbstractLogger } from "./logger-interface.js";
 import { SUPPORTED_LEVELS } from "../utils.js";
 
 //#region src/supported-loggers/console.ts
-var ConsoleLogger = class extends DaLoggerAbstractLogger {
+var ConsoleLogger = class ConsoleLogger extends DaLoggerAbstractLogger {
 	_console;
 	_traceKeyName;
 	_logLevel;
@@ -11,6 +11,13 @@ var ConsoleLogger = class extends DaLoggerAbstractLogger {
 		this._traceKeyName = loggerOpts.traceKeyName || "dalogger-trace-key";
 		this._console = console;
 		this._logLevel = SUPPORTED_LEVELS.get(loggerOpts.level) || SUPPORTED_LEVELS.get("debug");
+	}
+	createChild(childTraceKey = crypto.randomUUID(), meta) {
+		return new ConsoleLogger([
+			this.traceKey(),
+			childTraceKey,
+			JSON.stringify(meta)
+		].filter((i) => i).join("/"), this.loggerOpts());
 	}
 	provider() {
 		return this._console;

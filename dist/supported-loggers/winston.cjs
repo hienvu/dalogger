@@ -8,10 +8,14 @@ module$1 = require_rolldown_runtime.__toESM(module$1);
 
 //#region src/supported-loggers/winston.ts
 const require$1 = (0, module$1.createRequire)(require("url").pathToFileURL(__filename).href);
-var WinstonLogger = class extends require_logger_interface.DaLoggerAbstractLogger {
+var WinstonLogger = class WinstonLogger extends require_logger_interface.DaLoggerAbstractLogger {
 	_logger;
-	constructor(traceKey, loggerOpts = {}) {
+	constructor(traceKey, loggerOpts = {}, logger) {
 		super(traceKey, loggerOpts);
+		if (logger) {
+			this._logger = logger;
+			return;
+		}
 		const traceKeyName = loggerOpts.traceKeyName || "dalogger-trace-key";
 		const level = loggerOpts.level || "debug";
 		const transports = (loggerOpts.transports || []).map((transport) => {
@@ -31,6 +35,15 @@ var WinstonLogger = class extends require_logger_interface.DaLoggerAbstractLogge
 			exitOnError: false,
 			defaultMeta: { [traceKeyName]: traceKey }
 		});
+	}
+	createChild(childTraceKey = crypto.randomUUID(), meta) {
+		const traceKey = [this.traceKey(), childTraceKey].join("/");
+		const traceKeyName = `${this.loggerOpts().traceKeyName || "dalogger-trace-key"}`;
+		const childLogger = this._logger.child({ childLogger: {
+			[traceKeyName]: traceKey,
+			...meta
+		} });
+		return new WinstonLogger(traceKey, this.loggerOpts(), childLogger);
 	}
 	provider() {
 		return this._logger;

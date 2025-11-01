@@ -10,8 +10,14 @@ type PinoTarget = {
 export default class PinoLogger extends DaLoggerAbstractLogger {
   private _logger: pino.Logger;
 
-  constructor(traceKey: string, loggerOpts: LoggerOpts = {}) {
+  constructor(traceKey: string, loggerOpts: LoggerOpts = {}, logger?: pino.Logger) {
     super(traceKey, loggerOpts);
+
+    if (logger) {
+      this._logger = logger;
+      return;
+    }
+
     const traceKeyName = loggerOpts.traceKeyName || 'dalogger-trace-key';
     const level = loggerOpts.level || 'debug';
     const transport = loggerOpts.transport as { targets: PinoTarget[] };
@@ -36,6 +42,19 @@ export default class PinoLogger extends DaLoggerAbstractLogger {
     };
 
     this._logger = pino(args as pino.LoggerOptions);
+  }
+
+  createChild(childTraceKey: string = crypto.randomUUID(), meta?: Record<string, unknown>): DaLoggerAbstractLogger {
+    const traceKey = [this.traceKey(), childTraceKey].join('/');
+    const traceKeyName = `${this.loggerOpts().traceKeyName || 'dalogger-trace-key'}`;
+    const logger = this._logger.child({
+      childLogger: {
+        [traceKeyName]: traceKey,
+        ...meta,
+      },
+    });
+
+    return new PinoLogger(traceKey, this.loggerOpts(), logger);
   }
 
   provider(): DaLoggerLogProvider {
