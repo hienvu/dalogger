@@ -1,6 +1,7 @@
 import { processTask } from './lib/processor.mjs';
 import logger, { DaLogger } from '@hvu/dalogger';
 import express from 'express';
+import console from 'node:console';
 
 const app = express();
 

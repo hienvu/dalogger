@@ -5,7 +5,7 @@ Each example is designed to demonstrate a usage pattern.
 ### Install:
 
 ```
-npm i https://github.com/hienvu/dalogger 
+npm i https://github.com/hienvu/dalogger
 ```
 
 ### Usage
@@ -17,6 +17,7 @@ import logger, { DaLogger } from '@hvu/dalogger';
 ```
 
 CommonJS:
+
 ```
 const {logger, DaLogger} = require('@hvu/dalogger');
 ```
@@ -61,11 +62,10 @@ const childLogger = logger().createChild('trace-key-child');
 childLogger.debug('a', { b: 'c' });
 ```
 
-2. `DaLogger` is a class, refer to [here](/src/da-logger.ts) for its *static* methods.
+2. `DaLogger` is a class, refer to [here](/src/da-logger.ts) for its _static_ methods.
 
 ```
 // Two main methods to start tracing:
 DaLogger.register();
 DaLogger.run(callback, 'trace-key');
 ```
-
