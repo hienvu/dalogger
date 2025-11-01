@@ -1,6 +1,6 @@
 Each example is designed to demonstrate a usage pattern.
 
-# SYNOPSIS
+## SYNOPSIS
 
 TypeScript & ECMAScript:
 
