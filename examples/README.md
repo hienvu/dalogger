@@ -41,5 +41,21 @@ DaLogger.run(
 
 1. `logger()` is an object, refer to [DaLoggerAbstractLogger](/src/supported-loggers/logger-interface.ts) for its methods.
 
+```
+// Logging
+logger().debug('a', { b: 'c' });
+logger().error(new Error('an error'));
+
+// Child logging - note: will only exist within the scope it was created, refer to http-agent example:
+const childLogger = logger().createChild('trace-key-child');
+childLogger.debug('a', { b: 'c' });
+```
+
 2. `DaLogger` is a class, refer to [here](/src/da-logger.ts) for its *static* methods.
+
+```
+// Two main methods to start tracing:
+DaLogger.register();
+DaLogger.run(callback, 'trace-key');
+```
 
