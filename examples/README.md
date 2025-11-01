@@ -1,3 +1,5 @@
+Each example is designed to demonstrate a usage pattern.
+
 # SYNOPSIS
 
 TypeScript & ECMAScript:
@@ -39,7 +41,7 @@ DaLogger.run(
 
 ## API
 
-1. `logger()` is an object, refer to [DaLoggerAbstractLogger](/src/supported-loggers/logger-interface.ts) for its methods.
+1. `logger()` returns an async-context based object, refer to [DaLoggerAbstractLogger](/src/supported-loggers/logger-interface.ts) for its methods.
 
 ```
 // Logging
