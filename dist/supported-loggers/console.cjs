@@ -38,6 +38,9 @@ var ConsoleLogger = class ConsoleLogger extends require_logger_interface.DaLogge
 		if (this._logLevel < (require_utils.SUPPORTED_LEVELS.get("error") || 0)) return;
 		this._console.error(this._logTraceKey(), ...args);
 	}
+	traceKeyName() {
+		return this._traceKeyName;
+	}
 	_logTraceKey() {
 		return `[${this._traceKeyName}: ${this.traceKey()}]`;
 	}
