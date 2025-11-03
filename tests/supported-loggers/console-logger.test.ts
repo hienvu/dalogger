@@ -14,8 +14,9 @@ describe('ConsoleLogger', () => {
 
   it('should always use the same trace key', () => {
     const traceKey = crypto.randomUUID();
-    const logger = new ConsoleLogger(traceKey);
+    const logger = new ConsoleLogger(traceKey, { traceKeyName: 'dalogger-test-trace-key' });
     assert.strictEqual(logger.traceKey(), traceKey);
+    assert.strictEqual(logger.traceKeyName(), 'dalogger-test-trace-key');
   });
 
   it('should create a child logger', () => {

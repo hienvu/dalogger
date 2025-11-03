@@ -49,6 +49,10 @@ export default class ConsoleLogger extends DaLoggerAbstractLogger {
     this._console.error(this._logTraceKey(), ...args);
   }
 
+  traceKeyName(): string {
+    return this._traceKeyName;
+  }
+
   private _logTraceKey(): string {
     return `[${this._traceKeyName}: ${this.traceKey()}]`;
   }
