@@ -41,6 +41,7 @@ export class DaLogger {
     const loggerConfig: {
       level: string;
       provider: string;
+      traceKeyName?: string;
       settings?: {
         winston?: {
           transports?: { module: string; args: unknown }[];
