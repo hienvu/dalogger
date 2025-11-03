@@ -14,6 +14,7 @@ var WinstonLogger = class WinstonLogger extends DaLoggerAbstractLogger {
 			return;
 		}
 		const traceKeyName = loggerOpts.traceKeyName || "dalogger-trace-key";
+		console.log("loggerOpts", loggerOpts);
 		const level = loggerOpts.level || "debug";
 		const transports = (loggerOpts.transports || []).map((transport) => {
 			if (transport.module.toLowerCase() === "file") return new winston.transports.File({ ...transport.args });

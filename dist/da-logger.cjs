@@ -35,13 +35,18 @@ var DaLogger = class DaLogger {
 			...config.default.daLogger
 		};
 		const logProvider = (process.env.DA_LOGGER_PROVIDER || loggerConfig.provider || "pino").toUpperCase();
-		if (logProvider === "CONSOLE") return new require_console.default(traceKey, { level: loggerConfig.level });
+		if (logProvider === "CONSOLE") return new require_console.default(traceKey, {
+			level: loggerConfig.level,
+			traceKeyName: loggerConfig.traceKeyName
+		});
 		if (logProvider === "WINSTON") return new require_winston.default(traceKey, {
 			level: loggerConfig.level,
+			traceKeyName: loggerConfig.traceKeyName,
 			...loggerConfig.settings?.winston
 		});
 		return new require_pino.default(traceKey, {
 			level: loggerConfig.level,
+			traceKeyName: loggerConfig.traceKeyName,
 			...loggerConfig.settings?.pino
 		});
 	}
