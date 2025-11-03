@@ -21,7 +21,6 @@ export default class WinstonLogger extends DaLoggerAbstractLogger {
     }
 
     const traceKeyName = loggerOpts.traceKeyName || 'dalogger-trace-key';
-    console.log('loggerOpts', loggerOpts);
     const level = loggerOpts.level || 'debug';
     const transports = ((loggerOpts.transports as WinstonTransport[]) || []).map((transport: WinstonTransport) => {
       // Special case, built-in winston transport
