@@ -60,18 +60,26 @@ export class DaLogger {
     const logProvider = (process.env.DA_LOGGER_PROVIDER || loggerConfig.provider || 'pino').toUpperCase();
 
     if (logProvider === 'CONSOLE') {
-      return new ConsoleLogger(traceKey, { level: loggerConfig.level });
+      return new ConsoleLogger(traceKey, {
+        level: loggerConfig.level,
+        traceKeyName: loggerConfig.traceKeyName,
+      });
     }
 
     if (logProvider === 'WINSTON') {
       return new WinstonLogger(traceKey, {
         level: loggerConfig.level,
+        traceKeyName: loggerConfig.traceKeyName,
         ...loggerConfig.settings?.winston,
       });
     }
 
     // default Pino
-    return new PinoLogger(traceKey, { level: loggerConfig.level, ...loggerConfig.settings?.pino });
+    return new PinoLogger(traceKey, {
+      level: loggerConfig.level,
+      traceKeyName: loggerConfig.traceKeyName,
+      ...loggerConfig.settings?.pino,
+    });
   }
 }
 

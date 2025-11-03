@@ -1,7 +1,7 @@
 {
   "daLogger": {
     "level": "debug",
-    "traceKeyName": "dalogger-trace-key",
+    "traceKeyName": "x-dalogger-trace-key",
     "provider": "winston",
     "settings": {
       "pino": {
