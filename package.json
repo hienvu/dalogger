@@ -1,6 +1,6 @@
 {
   "name": "@hvu/dalogger",
-  "version": "1.0.1-rc.0",
+  "version": "1.0.1",
   "description": "Distributed-first logging. No trail, no tale.",
   "engines": {
     "node": ">=20.19.0"
